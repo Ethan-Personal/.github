@@ -16,18 +16,21 @@ This is how GitHub expects organization-wide defaults to be structured. When you
 ### Issue Templates
 
 Located in `.github/ISSUE_TEMPLATE/`:
-- **config.yml** - Issue template chooser configuration (enables third-party tools like Raycast to discover issue types)
+
+**Web UI Issue Forms (YAML):**
 - **bug.yml** - Bug report form
 - **feature.yml** - Feature request form  
 - **research.yml** - Research task form
 - **task.yml** - Implementation task form
+- **config.yml** - Issue template chooser configuration
 
-### Markdown Templates
+**Markdown Templates (for CLI/Raycast/API):**
+- **bug.md** - Bug report template
+- **feature.md** - Feature request template
+- **research.md** - Research task template
+- **task.md** - Implementation task template
 
-Located in `issue-templates-md/`:
-- Markdown versions of all issue templates
-- Designed for use with CLI, API, and third-party tools
-- See [issue-templates-md/README.md](issue-templates-md/README.md) for usage instructions
+The markdown versions are designed for use with GitHub CLI, API, Raycast, and other third-party tools that don't support YAML issue forms.
 
 ### Pull Request Template
 
