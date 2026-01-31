@@ -1,4 +1,4 @@
-name: Task
+name: Task (Form)
 description: A single, implementation-sized unit of work
 title: "task: "
 labels: ["type:task"]

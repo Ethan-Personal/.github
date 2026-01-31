@@ -1,5 +1,5 @@
 ---
-name: Research
+name: Research (Markdown)
 about: Investigate unknowns before implementation
 title: "research: "
 labels: type:research

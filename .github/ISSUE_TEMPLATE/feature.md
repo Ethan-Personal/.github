@@ -1,5 +1,5 @@
 ---
-name: Feature
+name: Feature (Markdown)
 about: Parent feature issue that tracks tasks and research
 title: "feature: "
 labels: type:feature

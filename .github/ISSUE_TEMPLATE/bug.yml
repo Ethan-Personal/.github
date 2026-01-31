@@ -1,4 +1,4 @@
-name: Bug
+name: Bug (Form)
 description: Something is broken or incorrect
 title: "bug: "
 labels: ["type:bug"]

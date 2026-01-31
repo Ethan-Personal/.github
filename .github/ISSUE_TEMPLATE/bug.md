@@ -1,5 +1,5 @@
 ---
-name: Bug
+name: Bug (Markdown)
 about: Something is broken or incorrect
 title: "bug: "
 labels: type:bug
