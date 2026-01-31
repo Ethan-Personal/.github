@@ -1,0 +1,66 @@
+name: Feature/Task Request
+description: Propose a new feature or task to be implemented
+title: "[FEATURE]: "
+labels: ["feature", "task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to propose a new feature or task!
+  
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Provide a clear and concise description of the feature or task
+      placeholder: What would you like to see implemented?
+    validations:
+      required: true
+  
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature/task solve?
+      placeholder: Describe the problem or need this addresses
+    validations:
+      required: false
+  
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: How do you envision this feature/task being implemented?
+      placeholder: Describe your proposed solution
+    validations:
+      required: false
+  
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered any alternative solutions or approaches?
+      placeholder: Describe any alternative solutions you've considered
+    validations:
+      required: false
+  
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: What criteria must be met for this to be considered complete?
+      placeholder: |
+        - [ ] Criteria 1
+        - [ ] Criteria 2
+        - [ ] Criteria 3
+    validations:
+      required: false
+  
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context, screenshots, or examples
+      placeholder: Any additional information that might be helpful
+    validations:
+      required: false
