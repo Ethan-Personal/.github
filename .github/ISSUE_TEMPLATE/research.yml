@@ -1,0 +1,97 @@
+name: Research Task
+description: Propose a research task or investigation
+title: "[RESEARCH]: "
+labels: ["research"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing a research task!
+  
+  - type: textarea
+    id: research-topic
+    attributes:
+      label: Research Topic
+      description: What topic or area needs to be researched?
+      placeholder: Briefly describe the research topic
+    validations:
+      required: true
+  
+  - type: textarea
+    id: objectives
+    attributes:
+      label: Research Objectives
+      description: What are the goals of this research?
+      placeholder: |
+        - Objective 1
+        - Objective 2
+        - Objective 3
+    validations:
+      required: true
+  
+  - type: textarea
+    id: background
+    attributes:
+      label: Background/Context
+      description: Provide context about why this research is needed
+      placeholder: Why is this research important? What problem does it address?
+    validations:
+      required: false
+  
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: What is in scope and out of scope for this research?
+      placeholder: |
+        **In Scope:**
+        - Item 1
+        - Item 2
+        
+        **Out of Scope:**
+        - Item 1
+        - Item 2
+    validations:
+      required: false
+  
+  - type: textarea
+    id: questions
+    attributes:
+      label: Key Questions
+      description: What specific questions should this research answer?
+      placeholder: |
+        1. Question 1?
+        2. Question 2?
+        3. Question 3?
+    validations:
+      required: false
+  
+  - type: textarea
+    id: deliverables
+    attributes:
+      label: Expected Deliverables
+      description: What outputs are expected from this research?
+      placeholder: |
+        - Document with findings
+        - Presentation
+        - Proof of concept
+    validations:
+      required: false
+  
+  - type: textarea
+    id: timeline
+    attributes:
+      label: Timeline
+      description: What is the expected timeline for this research?
+      placeholder: e.g., 2 weeks, 1 month
+    validations:
+      required: false
+  
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context, resources, or references
+      placeholder: Links to related issues, documentation, articles, etc.
+    validations:
+      required: false
