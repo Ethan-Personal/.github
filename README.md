@@ -32,6 +32,11 @@ Located in `.github/ISSUE_TEMPLATE/`:
 
 The markdown versions are designed for use with GitHub CLI, API, Raycast, and other third-party tools that don't support YAML issue forms.
 
+**Usage Example (GitHub CLI):**
+```bash
+gh issue create --repo owner/repo --title "bug: Issue title" --body-file .github/ISSUE_TEMPLATE/bug.md --label "type:bug"
+```
+
 ### Pull Request Template
 
 Located at `.github/pull_request_template.md` - Default template for all pull requests in the organization.
