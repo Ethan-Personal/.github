@@ -3,11 +3,30 @@ description: Investigate unknowns before implementation
 title: "research: "
 labels: ["type:research"]
 body:
+  - type: input
+    id: feature_slug
+    attributes:
+      label: Feature Slug
+      description: Slug of the parent feature (used for branch/plan linking).
+      placeholder: "oauth-token-refresh"
+    validations:
+      required: true
+
+  - type: input
+    id: parent
+    attributes:
+      label: Parent Feature Issue
+      description: Link the parent feature issue (recommended).
+      placeholder: "#123"
+    validations:
+      required: false
+
   - type: textarea
     id: question
     attributes:
       label: Research Question
       description: What do we need to learn/decide?
+      placeholder: "What is the best way to X given constraints Y?"
     validations:
       required: true
 
@@ -25,6 +44,18 @@ body:
       required: true
 
   - type: textarea
+    id: context
+    attributes:
+      label: Context / Background
+      description: Only what is necessary. Link docs/issues/PRs.
+      placeholder: |
+        - Related: #123
+        - Plan: plans/<feature-slug>.md — R1
+        - Notes: ...
+    validations:
+      required: false
+
+  - type: textarea
     id: scope
     attributes:
       label: Scope / Constraints
@@ -33,6 +64,15 @@ body:
         - ...
         Out of scope:
         - ...
+    validations:
+      required: false
+
+  - type: input
+    id: artifacts
+    attributes:
+      label: Artifacts / Links
+      description: Where the research will live (or related links).
+      placeholder: "docs/research/<topic>.md"
     validations:
       required: false
 
@@ -47,3 +87,24 @@ body:
         - 4 hours
     validations:
       required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - P0 (urgent)
+        - P1 (high)
+        - P2 (medium)
+        - P3 (low)
+    validations:
+      required: false
+
+  - type: input
+    id: owner
+    attributes:
+      label: Owner
+      description: GitHub username (optional).
+      placeholder: "@your-handle"
+    validations:
+      required: false
