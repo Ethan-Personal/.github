@@ -3,6 +3,7 @@
 - [ ] Feature (new functionality)
 - [ ] Bug fix (non-breaking change that fixes an issue)
 - [ ] Task (implementation work)
+- [ ] Research Done
 - [ ] Refactor (code improvement without functional changes)
 - [ ] Documentation
 - [ ] Other (please describe):
