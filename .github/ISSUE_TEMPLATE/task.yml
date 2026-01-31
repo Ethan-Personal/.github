@@ -3,6 +3,24 @@ description: A single, implementation-sized unit of work
 title: "task: "
 labels: ["type:task"]
 body:
+  - type: input
+    id: feature_slug
+    attributes:
+      label: Feature Slug
+      description: Slug of the parent feature (used for branch/plan linking).
+      placeholder: "oauth-token-refresh"
+    validations:
+      required: true
+
+  - type: input
+    id: parent
+    attributes:
+      label: Parent Feature Issue
+      description: Link the parent feature issue (recommended).
+      placeholder: "#123"
+    validations:
+      required: false
+
   - type: textarea
     id: goal
     attributes:
@@ -19,7 +37,7 @@ body:
       description: Only what is necessary. Link docs/issues/PRs.
       placeholder: |
         - Related: #123
-        - Plan: plans/feature-x.md — T3
+        - Plan: plans/<feature-slug>.md — T3
         - Notes: ...
     validations:
       required: false
@@ -28,7 +46,7 @@ body:
     id: scope
     attributes:
       label: Scope
-      description: What is in scope (and optionally out of scope).
+      description: What is in scope (and explicitly out of scope).
       placeholder: |
         In scope:
         - ...
@@ -75,7 +93,7 @@ body:
     attributes:
       label: Artifacts / Links
       description: Plan/doc links, designs, specs, etc.
-      placeholder: "plans/feature-x.md — T3"
+      placeholder: "plans/<feature-slug>.md — T3"
     validations:
       required: false
 
@@ -83,9 +101,7 @@ body:
     id: size
     attributes:
       label: Size
-      description: >
-        S and M are expected.
-        L/XL indicate the task should likely be split before implementation.
+      description: S and M are expected. L/XL should likely be split.
       options:
         - S (≤ 1h)
         - M (1–3h)
