@@ -63,7 +63,7 @@ body:
     id: plan
     attributes:
       label: Plan File
-      description: Path to the plan (create at this path for consistency).
+      description: Optional path to the plan file, if used.
       placeholder: "plans/<feature-slug>.md"
     validations:
       required: false
@@ -74,9 +74,9 @@ body:
       label: Child Work Items (Tasks / Research)
       description: Automation should populate this with linked issues.
       placeholder: |
-        - [ ] #123 Task: ...
-        - [ ] #124 Research: ...
-        - [ ] #125 Task: ...
+        - [ ] #123 task: ...
+        - [ ] #124 research: ...
+        - [ ] #125 task: ...
     validations:
       required: false
 
@@ -88,7 +88,6 @@ body:
       placeholder: |
         - [ ] Integration/E2E: ...
         - [ ] Manual smoke test: ...
-        - [ ] Commands: ...
     validations:
       required: false
 
@@ -114,14 +113,5 @@ body:
         - M (medium)
         - L (large)
         - XL (very large)
-    validations:
-      required: false
-
-  - type: input
-    id: owner
-    attributes:
-      label: Owner
-      description: GitHub username (optional).
-      placeholder: "@your-handle"
     validations:
       required: false
