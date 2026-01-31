@@ -1,5 +1,5 @@
 ---
-name: Task (Markdown)
+name: Implementation Task
 about: A single, implementation-sized unit of work
 title: "task: "
 labels: type:task

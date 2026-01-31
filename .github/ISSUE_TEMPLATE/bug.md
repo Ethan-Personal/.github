@@ -1,5 +1,5 @@
 ---
-name: Bug (Markdown)
+name: Bug Report
 about: Something is broken or incorrect
 title: "bug: "
 labels: type:bug
