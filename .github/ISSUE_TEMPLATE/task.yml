@@ -1,5 +1,5 @@
 name: Task (Form)
-description: A single, implementation-sized unit of work
+description: An implementation task under a feature plan
 title: "task: "
 labels: ["type:task"]
 body:
@@ -7,8 +7,8 @@ body:
     id: feature_slug
     attributes:
       label: Feature Slug
-      description: Slug of the parent feature.
-      placeholder: "oauth-token-refresh"
+      description: Kebab-case slug of the parent feature.
+      placeholder: "league-ingestion"
     validations:
       required: true
 
@@ -16,7 +16,6 @@ body:
     id: parent
     attributes:
       label: Parent Feature Issue
-      description: Link the parent feature issue (recommended).
       placeholder: "#123"
     validations:
       required: false
@@ -25,8 +24,7 @@ body:
     id: goal
     attributes:
       label: Goal
-      description: What outcome should exist when this is done?
-      placeholder: "Add X so users can Y."
+      description: One-sentence outcome.
     validations:
       required: true
 
@@ -34,9 +32,8 @@ body:
     id: context
     attributes:
       label: Context / Background
-      description: Only what is necessary.
       placeholder: |
-        - Plan: plans/<feature-slug>.md — T3
+        - Plan: plans/<feature_slug>.md — T1
         - Notes: ...
     validations:
       required: false
@@ -45,14 +42,13 @@ body:
     id: scope
     attributes:
       label: Scope
-      description: What is in scope (and explicitly out of scope).
       placeholder: |
         In scope:
         - ...
         Out of scope:
         - ...
     validations:
-      required: false
+      required: true
 
   - type: textarea
     id: approach
@@ -61,14 +57,14 @@ body:
       description: High-level steps only.
       placeholder: |
         - ...
+        - ...
     validations:
-      required: false
+      required: true
 
   - type: textarea
     id: acceptance
     attributes:
       label: Acceptance Criteria
-      description: Verifiable checklist items.
       placeholder: |
         - [ ] ...
         - [ ] ...
@@ -83,18 +79,6 @@ body:
         - [ ] Unit tests: ...
         - [ ] Manual checks: ...
     validations:
-      required: false
-
-  - type: dropdown
-    id: size
-    attributes:
-      label: Size
-      options:
-        - S (≤ 1h)
-        - M (1–3h)
-        - L (3–6h)
-        - XL (> 6h; consider splitting)
-    validations:
       required: true
 
   - type: dropdown
@@ -102,9 +86,21 @@ body:
     attributes:
       label: Priority
       options:
-        - P0 (urgent)
-        - P1 (high)
-        - P2 (medium)
-        - P3 (low)
+        - P0
+        - P1
+        - P2
+        - P3
+    validations:
+      required: false
+
+  - type: dropdown
+    id: size
+    attributes:
+      label: Size
+      options:
+        - S
+        - M
+        - L
+        - XL
     validations:
       required: false
