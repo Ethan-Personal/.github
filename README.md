@@ -2,6 +2,10 @@
 
 This is a special GitHub repository that provides organization-wide defaults for issue templates, pull request templates, and other GitHub configurations.
 
+## 🚀 Quick Start
+
+**Want to use these organization labels in your repository?** Check out the **[Label Usage Guide](LABEL_USAGE_GUIDE.md)** for step-by-step instructions on how to apply these labels to any repository in the organization (e.g., FB-Yahoo project).
+
 ## Repository Structure
 
 This repository is named `.github` (the repository name itself), and it contains a `.github` directory inside it. This might seem like a nested structure, but it's actually the correct setup:
@@ -49,6 +53,8 @@ Located at `.github/labels.yml` - Organization-wide label definitions that can b
 
 **State Labels** (archival and visibility):
 - **state:archived** - Hidden from active boards but still accessible
+
+**📖 For detailed instructions on how to use these labels in your other repositories, see [LABEL_USAGE_GUIDE.md](LABEL_USAGE_GUIDE.md)**
 
 ## Why This Structure?
 
