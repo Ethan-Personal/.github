@@ -1,0 +1,50 @@
+---
+# Organization-wide label definitions
+# These labels are referenced in issue templates and should be available across all repositories
+
+# Type labels - categorize the kind of work
+- name: type:bug
+  description: Something is broken or incorrect
+  color: d73a4a
+
+- name: type:feature
+  description: Parent feature / epic
+  color: 5319e7
+
+- name: type:task
+  description: Implementation task
+  color: 1d76db
+
+- name: type:research
+  description: Research or investigation task
+  color: fbca04
+
+# Status labels - track feature/task lifecycle
+- name: status:backlog
+  description: Feature exists but not currently active
+  color: cfd3d7
+
+- name: status:feature-in-progress
+  description: Currently active feature
+  color: 0052cc
+
+- name: status:done
+  description: Completed (feature or task)
+  color: "000000"
+
+- name: status:blocked
+  description: Blocked by unmet dependencies
+  color: d73a4a
+
+- name: status:ready
+  description: Unblocked and ready to start
+  color: 0e8a16
+
+- name: status:in-progress
+  description: Actively being worked on
+  color: 0052cc
+
+# State labels - archival and visibility
+- name: state:archived
+  description: Hidden from active boards but still accessible
+  color: ededed

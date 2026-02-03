@@ -29,6 +29,27 @@ Located in `.github/ISSUE_TEMPLATE/`:
 
 Located at `.github/pull_request_template.md` - Default template for all pull requests in the organization.
 
+### Labels
+
+Located at `.github/labels.yml` - Organization-wide label definitions that can be synced across repositories using label management tools.
+
+**Type Labels** (categorize the kind of work):
+- **type:bug** - Something is broken or incorrect
+- **type:feature** - Parent feature / epic
+- **type:task** - Implementation task
+- **type:research** - Research or investigation task
+
+**Status Labels** (track feature/task lifecycle):
+- **status:backlog** - Feature exists but not currently active
+- **status:feature-in-progress** - Currently active feature
+- **status:done** - Completed (feature or task)
+- **status:blocked** - Blocked by unmet dependencies
+- **status:ready** - Unblocked and ready to start
+- **status:in-progress** - Actively being worked on
+
+**State Labels** (archival and visibility):
+- **state:archived** - Hidden from active boards but still accessible
+
 ## Why This Structure?
 
 GitHub's special `.github` repository requires:
