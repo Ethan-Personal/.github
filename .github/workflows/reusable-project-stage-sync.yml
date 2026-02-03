@@ -28,14 +28,12 @@ jobs:
     steps:
       - name: Sync Project Stage from labels
         uses: actions/github-script@v7
+        env:
+          PROJECT_NUMBER: ${{ inputs.project_number }}
+          PROJECT_NAME: ${{ inputs.project_name }}
+          STAGE_FIELD_NAME: ${{ inputs.stage_field_name }}
         with:
           github-token: ${{ secrets.ORG_WORKFLOW_TOKEN }}
-
-          # ✅ CRITICAL: pass workflow_call inputs as step inputs so core.getInput() can read them
-          project_number: ${{ inputs.project_number }}
-          project_name: ${{ inputs.project_name }}
-          stage_field_name: ${{ inputs.stage_field_name }}
-
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
@@ -52,7 +50,7 @@ jobs:
             const labels = (issue.labels || []).map(l => (typeof l === "string" ? l : l.name));
             const has = (name) => labels.includes(name);
 
-            // Map status labels -> Stage single-select values
+            // Map labels -> Stage
             const stageMap = [
               ["status:blocked", "Blocked"],
               ["status:ready", "Ready"],
@@ -64,15 +62,18 @@ jobs:
             ];
 
             const stageValue = stageMap.find(([label]) => has(label))?.[1];
-
             if (!stageValue) {
-              core.info("No matching status label found; not guessing Stage. Exiting.");
+              core.info("No matching status/state label found; not guessing Stage. Exiting.");
               return;
             }
 
-            const projectNumber = Number(core.getInput("project_number", { required: true }));
-            const projectName = core.getInput("project_name", { required: true });
-            const stageFieldName = core.getInput("stage_field_name", { required: true });
+            const projectNumberRaw = process.env.PROJECT_NUMBER;
+            if (!projectNumberRaw) throw new Error("PROJECT_NUMBER env var missing");
+            const projectNumber = Number(projectNumberRaw);
+            if (!Number.isFinite(projectNumber)) throw new Error(`Invalid PROJECT_NUMBER: ${projectNumberRaw}`);
+
+            const projectName = process.env.PROJECT_NAME || "Workflow";
+            const stageFieldName = process.env.STAGE_FIELD_NAME || "Stage";
 
             core.info(`Repo: ${owner}/${repo}`);
             core.info(`Issue: #${issueNumber}`);
@@ -80,14 +81,11 @@ jobs:
             core.info(`Stage field: ${stageFieldName}`);
             core.info(`Computed Stage value: ${stageValue}`);
 
-            // Lookup projectV2 id
+            // 1) Lookup org project id
             const projectQuery = `
               query($org: String!, $number: Int!) {
                 organization(login: $org) {
-                  projectV2(number: $number) {
-                    id
-                    title
-                  }
+                  projectV2(number: $number) { id title }
                 }
               }`;
 
@@ -97,12 +95,10 @@ jobs:
             });
 
             const project = projectRes.organization?.projectV2;
-            if (!project) {
-              throw new Error(`ProjectV2 #${projectNumber} not found in org ${owner}`);
-            }
+            if (!project) throw new Error(`ProjectV2 #${projectNumber} not found in org ${owner}`);
             const projectId = project.id;
 
-            // Find Stage field + option id matching stageValue
+            // 2) Find Stage field + option id
             const fieldsQuery = `
               query($projectId: ID!) {
                 node(id: $projectId) {
@@ -112,10 +108,7 @@ jobs:
                         ... on ProjectV2SingleSelectField {
                           id
                           name
-                          options {
-                            id
-                            name
-                          }
+                          options { id name }
                         }
                       }
                     }
@@ -127,19 +120,15 @@ jobs:
             const fields = fieldsRes.node?.fields?.nodes || [];
             const stageField = fields.find(f => f?.name === stageFieldName);
 
-            if (!stageField) {
-              throw new Error(`Stage field "${stageFieldName}" not found on project`);
-            }
+            if (!stageField) throw new Error(`Stage field "${stageFieldName}" not found on project`);
 
             const option = (stageField.options || []).find(o => o?.name === stageValue);
-            if (!option) {
-              throw new Error(`Stage option "${stageValue}" not found in field "${stageFieldName}"`);
-            }
+            if (!option) throw new Error(`Stage option "${stageValue}" not found in field "${stageFieldName}"`);
 
             const stageFieldId = stageField.id;
             const optionId = option.id;
 
-            // Ensure issue is added to the project
+            // 3) Add issue to project (or find existing item)
             const addItemMutation = `
               mutation($projectId: ID!, $contentId: ID!) {
                 addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) {
@@ -156,26 +145,18 @@ jobs:
               itemId = addRes.addProjectV2ItemById.item.id;
               core.info(`Added issue to project. Item ID: ${itemId}`);
             } catch (e) {
-              core.info("Issue may already be in project; trying to locate existing item...");
-              // Locate existing item
+              core.info("Issue may already be in project; locating existing item...");
               const itemQuery = `
                 query($owner: String!, $repo: String!, $issueNumber: Int!) {
                   repository(owner: $owner, name: $repo) {
                     issue(number: $issueNumber) {
                       projectItems(first: 20) {
-                        nodes {
-                          id
-                          project { id }
-                        }
+                        nodes { id project { id } }
                       }
                     }
                   }
                 }`;
-              const itemRes = await github.graphql(itemQuery, {
-                owner,
-                repo,
-                issueNumber,
-              });
+              const itemRes = await github.graphql(itemQuery, { owner, repo, issueNumber });
               const items = itemRes.repository?.issue?.projectItems?.nodes || [];
               const match = items.find(i => i?.project?.id === projectId);
               if (!match) throw e;
@@ -183,7 +164,7 @@ jobs:
               core.info(`Found existing project item. Item ID: ${itemId}`);
             }
 
-            // Update Stage field value
+            // 4) Update Stage field
             const updateMutation = `
               mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
                 updateProjectV2ItemFieldValue(
