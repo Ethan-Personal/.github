@@ -1,0 +1,230 @@
+# Reusable workflow: issue dependency & feature rollup
+name: Reusable - Project Stage sync (labels -> Stage)
+
+on:
+  workflow_call:
+    inputs:
+      project_number:
+        required: true
+        type: string
+      project_name:
+        required: false
+        type: string
+        default: Workflow
+      stage_field_name:
+        required: false
+        type: string
+        default: Stage
+    secrets:
+      ORG_WORKFLOW_TOKEN:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Sync Project Stage from labels
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.ORG_WORKFLOW_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const issue = context.payload.issue;
+            if (!issue) {
+              core.info("No issue in event payload; exiting.");
+              return;
+            }
+
+            const issueNumber = issue.number;
+            const issueNodeId = issue.node_id;
+
+            const labels = (issue.labels || []).map(l => (typeof l === "string" ? l : l.name));
+            const has = (name) => labels.includes(name);
+
+            const isFeature = has("type:feature");
+            const isTaskOrResearch = has("type:task") || has("type:research");
+
+            if (!isFeature && !isTaskOrResearch) {
+              core.info("Issue is neither feature nor task/research; skipping Stage sync.");
+              return;
+            }
+
+            function computeStage() {
+              if (isFeature) {
+                if (has("status:backlog")) return "Backlog";
+                if (has("status:feature-in-progress")) return "Feature In Progress";
+                if (has("status:done")) return "Done";
+                return null;
+              } else {
+                if (has("status:blocked")) return "Blocked";
+                if (has("status:ready")) return "Ready";
+                if (has("status:in-progress")) return "In Progress";
+                if (has("status:done")) return "Done";
+                return null;
+              }
+            }
+
+            const stageValue = computeStage();
+            if (!stageValue) {
+              core.info("No matching status label found; not guessing Stage. Exiting.");
+              return;
+            }
+
+            const projectNumber = Number(core.getInput("project_number", { required: true }));
+            const projectName = core.getInput("project_name");
+            const stageFieldName = core.getInput("stage_field_name");
+
+            // GraphQL helper
+            async function gql(query, variables) {
+              return await github.graphql(query, variables);
+            }
+
+            // 1) Load org project, fields, and Stage options by name (dynamic lookup every run)
+            const projectData = await gql(
+              `
+              query($org: String!, $number: Int!) {
+                organization(login: $org) {
+                  projectV2(number: $number) {
+                    id
+                    title
+                    fields(first: 100) {
+                      nodes {
+                        __typename
+                        ... on ProjectV2SingleSelectField {
+                          id
+                          name
+                          options {
+                            id
+                            name
+                          }
+                        }
+                      }
+                    }
+                    items(first: 1) { totalCount }
+                  }
+                }
+              }
+              `,
+              { org: owner, number: projectNumber }
+            );
+
+            const project = projectData.organization?.projectV2;
+            if (!project) {
+              throw new Error(`ProjectV2 not found for org=${owner} number=${projectNumber}`);
+            }
+
+            // Optional sanity check by name
+            if (projectName && project.title !== projectName) {
+              core.warning(`Project title mismatch: expected "${projectName}", got "${project.title}". Continuing anyway.`);
+            }
+
+            const stageField = (project.fields.nodes || []).find(
+              f => f.__typename === "ProjectV2SingleSelectField" && f.name === stageFieldName
+            );
+
+            if (!stageField) {
+              throw new Error(`Single select field "${stageFieldName}" not found on project.`);
+            }
+
+            const option = (stageField.options || []).find(o => o.name === stageValue);
+            if (!option) {
+              throw new Error(`Stage option "${stageValue}" not found in field "${stageFieldName}".`);
+            }
+
+            const projectId = project.id;
+            const fieldId = stageField.id;
+            const optionId = option.id;
+
+            // 2) Ensure issue is in the project; get itemId
+            async function findItemIdByIssueId() {
+              let cursor = null;
+              while (true) {
+                const res = await gql(
+                  `
+                  query($projectId: ID!, $after: String) {
+                    node(id: $projectId) {
+                      ... on ProjectV2 {
+                        items(first: 100, after: $after) {
+                          pageInfo { hasNextPage endCursor }
+                          nodes {
+                            id
+                            content {
+                              __typename
+                              ... on Issue { id number }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                  `,
+                  { projectId, after: cursor }
+                );
+
+                const items = res.node.items.nodes || [];
+                for (const it of items) {
+                  if (it.content?.__typename === "Issue" && it.content.id === issueNodeId) {
+                    return it.id;
+                  }
+                }
+
+                if (!res.node.items.pageInfo.hasNextPage) break;
+                cursor = res.node.items.pageInfo.endCursor;
+              }
+              return null;
+            }
+
+            async function addToProject() {
+              const res = await gql(
+                `
+                mutation($projectId: ID!, $contentId: ID!) {
+                  addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) {
+                    item { id }
+                  }
+                }
+                `,
+                { projectId, contentId: issueNodeId }
+              );
+              return res.addProjectV2ItemById.item.id;
+            }
+
+            let itemId = await findItemIdByIssueId();
+
+            if (!itemId) {
+              core.info("Issue not in project yet; adding.");
+              try {
+                itemId = await addToProject();
+              } catch (e) {
+                // If add failed because it was added concurrently, try find again
+                core.warning(`Add to project failed (${e.message}); re-trying lookup.`);
+                itemId = await findItemIdByIssueId();
+                if (!itemId) throw e;
+              }
+            }
+
+            // 3) Update Stage field
+            await gql(
+              `
+              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+                updateProjectV2ItemFieldValue(
+                  input: {
+                    projectId: $projectId
+                    itemId: $itemId
+                    fieldId: $fieldId
+                    value: { singleSelectOptionId: $optionId }
+                  }
+                ) {
+                  projectV2Item { id }
+                }
+              }
+              `,
+              { projectId, itemId, fieldId, optionId }
+            );
+
+            core.info(`Synced Stage="${stageValue}" for issue #${issueNumber}`);
