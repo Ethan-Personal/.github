@@ -55,6 +55,7 @@ jobs:
 
             const isFeature = has("type:feature");
             const isTaskOrResearch = has("type:task") || has("type:research");
+            const isBug = has("type:bug");
 
             // Stage precedence: first match wins (highest -> lowest).
             const stageMap = [
@@ -75,14 +76,14 @@ jobs:
               core.info('Feature issue has no status/state label; defaulting Stage to "Backlog".');
             }
 
-            // For tasks/research: don't guess
-            if (!stageValue && isTaskOrResearch) {
-              core.info("No matching status/state label found for task/research; not guessing Stage. Exiting.");
+            // For tasks/research/bugs: don't guess
+            if (!stageValue && (isTaskOrResearch || isBug)) {
+              core.info("No matching status/state label found for task/research/bug; not guessing Stage. Exiting.");
               return;
             }
 
             // If not a recognized type and no status/state, do nothing
-            if (!stageValue && !isFeature && !isTaskOrResearch) {
+            if (!stageValue && !isFeature && !isTaskOrResearch && !isBug) {
               core.info("Issue has no type:* label and no status/state label; exiting.");
               return;
             }
