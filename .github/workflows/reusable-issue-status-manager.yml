@@ -142,8 +142,9 @@ jobs:
             // (1) On close: set status:done and cleanup
             // -------------------------
             if (action === "closed") {
-              core.info("Issue closed -> setting status:done and cleaning statuses.");
+              core.info("Issue closed -> setting status:done, state:archived, and cleaning statuses.");
               await setExclusiveStatusLabel("status:done");
+              await addLabel("state:archived");
               // NOTE: we intentionally keep other non-status labels intact.
 
               // After closing, attempt feature rollup
