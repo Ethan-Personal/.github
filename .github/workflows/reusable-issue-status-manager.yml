@@ -37,11 +37,12 @@ jobs:
 
             const isTask = has("type:task");
             const isResearch = has("type:research");
+            const isBug = has("type:bug");
             const isFeature = has("type:feature");
 
-            // Only manage task/research issues here (features handled only via rollup).
-            if (!isTask && !isResearch) {
-              core.info("Not a task/research issue; skipping dependency logic.");
+            // Only manage task/research/bug issues here (features handled only via rollup).
+            if (!isTask && !isResearch && !isBug) {
+              core.info("Not a task/research/bug issue; skipping dependency logic.");
               // Still allow rollup if someone accidentally triggers this? We'll skip entirely.
               return;
             }
@@ -219,6 +220,8 @@ jobs:
             const openResearch = await searchCount(openResearchQ);
             const openChildren = openTasks + openResearch;
 
+            // Note: Bugs are intentionally NOT counted in openChildren.
+            // Features should not be blocked by bugs unless explicitly mentioned.
             core.info(`Feature #${featureNumber} has open children: ${openChildren} (tasks=${openTasks}, research=${openResearch})`);
 
             if (openChildren > 0) {
@@ -248,7 +251,7 @@ jobs:
 
             await setFeatureDone();
 
-            // (b) archive all children (task/research) referencing the feature
+            // (b) archive all children (task/research/bug) referencing the feature
             async function listAllChildren(typeLabel) {
               const q = `repo:${owner}/${repo} is:issue "Parent Feature Issue: #${featureNumber}" label:"${typeLabel}"`;
               // search supports pagination
@@ -267,6 +270,7 @@ jobs:
             const childItems = [
               ...(await listAllChildren("type:task")),
               ...(await listAllChildren("type:research")),
+              ...(await listAllChildren("type:bug")),
             ];
 
             // de-dup (search overlap shouldn't happen, but be safe)
